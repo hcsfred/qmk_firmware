@@ -1,13 +1,14 @@
 #include QMK_KEYBOARD_H
 
 enum ctrl_keycodes {
-    U_T_AUTO = SAFE_RANGE, //USB Extra Port Toggle Auto Detect / Always Active
-    U_T_AGCR,              //USB Toggle Automatic GCR control
-    DBG_TOG,               //DEBUG Toggle On / Off
-    DBG_MTRX,              //DEBUG Toggle Matrix Prints
-    DBG_KBD,               //DEBUG Toggle Keyboard Prints
-    DBG_MOU,               //DEBUG Toggle Mouse Prints
-    MD_BOOT,               //Restart into bootloader after hold timeout
+    U_T_AUTO = SAFE_RANGE, // USB Extra Port Toggle Auto Detect / Always Active
+    U_T_AGCR,              // USB Toggle Automatic GCR control
+    DBG_TOG,               // DEBUG Toggle On / Off
+    DBG_MTRX,              // DEBUG Toggle Matrix Prints
+    DBG_KBD,               // DEBUG Toggle Keyboard Prints
+    DBG_MOU,               // DEBUG Toggle Mouse Prints
+    MD_BOOT,               // Restart into bootloader after hold timeout
+    LED_TOG,            	 // LED Toggle On / Off
 };
 
 enum layout_names {
@@ -40,16 +41,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, DF(WIN), DF(MAC), _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,   KC_MPLY, KC_MSTP, KC_VOLU, \
         _______, RGB_SPD, RGB_VAI, RGB_SPI, RGB_HUI, RGB_SAI, _______, U_T_AUTO,U_T_AGCR,_______, _______, _______, _______, _______,   KC_MPRV, KC_MNXT, KC_VOLD, \
         _______, RGB_RMOD,RGB_VAD, RGB_MOD, RGB_HUD, RGB_SAD, _______, _______, _______, _______, _______, _______, _______, \
-        _______, RGB_TOG, RGB_M_P, _______, _______, MD_BOOT, NK_TOGG, _______, _______, _______, _______, _______,                              _______, \
+        _______, RGB_TOG, LED_TOG, RGB_M_P, _______, MD_BOOT, NK_TOGG, _______, _______, _______, _______, _______,                              _______, \
         _______, _______, _______,                   _______,                            _______, _______, _______, _______,            _______, _______, _______ \
     ),
 };
 
-// Runs just one time when the keyboard initializes.
+// Runs just one time when the keyboard initializes
 void matrix_init_user(void) {
 };
 
-// Runs constantly in the background, in a loop.
+// Runs constantly in the background, in a loop
 void matrix_scan_user(void) {
 };
 
@@ -126,7 +127,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
               }
             }
             return false;
+				case LED_TOG:
+					if (record->event.pressed) {
+						switch (rgb_matrix_get_flags()) {
+							case LED_FLAG_NONE: {
+								rgb_matrix_set_flags(LED_FLAG_ALL);
+								rgb_matrix_enable_noeeprom();
+								}
+								break;
+							default: {
+									rgb_matrix_set_flags(LED_FLAG_NONE);
+									rgb_matrix_set_color_all(0, 0, 0);
+								}
+								break;
+						}
+					}
+					return false;
         default:
-            return true; //Process all other keycodes normally
+            return true; // Process all other keycodes normally
     }
 }
